@@ -1,5 +1,4 @@
 # CodeSentry
-# CodeSentry
 
 **Intelligent Code Review Automation Platform**
 
