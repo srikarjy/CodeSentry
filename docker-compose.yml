@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  analysis-engine:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - RUST_LOG=debug
+    volumes:
+      - ./src:/app/src:ro
+    restart: unless-stopped
+
+  # For development with hot reload
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8080:8080"
+    environment:
+      - RUST_LOG=debug
+    volumes:
+      - .:/app
+      - cargo-cache:/usr/local/cargo/registry
+    working_dir: /app
+    command: cargo run
+    profiles:
+      - dev
+
+volumes:
+  cargo-cache:
