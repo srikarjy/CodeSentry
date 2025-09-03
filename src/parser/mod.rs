@@ -6,8 +6,11 @@ use crate::{
     types::Language,
 };
 
+pub mod javascript;
+pub mod typescript;
+
 pub struct ParserRegistry {
-    _parsers: HashMap<Language, Box<dyn Parser>>,
+    parsers: HashMap<Language, Box<dyn Parser>>,
 }
 
 pub trait Parser: Send + Sync {
@@ -44,25 +47,26 @@ pub struct ImportInfo {
 
 impl ParserRegistry {
     pub async fn new() -> AnalysisResult<Self> {
-        let parsers: HashMap<Language, Box<dyn Parser>> = HashMap::new();
+        let mut parsers: HashMap<Language, Box<dyn Parser>> = HashMap::new();
         
-        // For now, we'll create an empty registry
-        // Parsers will be added in Week 2
+        // Register JavaScript parser
+        let js_parser = javascript::JavaScriptParser::new()?;
+        parsers.insert(Language::JavaScript, Box::new(js_parser));
         
-        info!("Parser registry initialized");
+        // Register TypeScript parser
+        let ts_parser = typescript::TypeScriptParser::new()?;
+        parsers.insert(Language::TypeScript, Box::new(ts_parser));
         
-        Ok(Self {
-            _parsers: parsers,
-        })
+        info!("Parser registry initialized with {} parsers", parsers.len());
+        
+        Ok(Self { parsers })
     }
 
-    pub fn get_parser(&self, _language: &Language) -> Option<&dyn Parser> {
-        // For now, return None - parsers will be implemented in Week 2
-        None
+    pub fn get_parser(&self, language: &Language) -> Option<&dyn Parser> {
+        self.parsers.get(language).map(|p| p.as_ref())
     }
 
     pub fn supported_languages(&self) -> Vec<Language> {
-        // For now, return empty - will be populated in Week 2
-        vec![]
+        self.parsers.keys().cloned().collect()
     }
 }
